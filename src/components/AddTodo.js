@@ -1,0 +1,40 @@
+import React, { Component } from 'react';
+import { css } from "glamor";
+import join from 'lodash/join';
+import noop from 'lodash/noop';
+
+
+const inputStyleFocus = css({
+    "&:focus": {
+        borderBottom: "solid 1px black"
+    }
+});
+
+export function AddTodo ({ onAdd = noop }) {
+
+    return (
+        <form 
+            onSubmit={e => {
+                e.preventDefault();
+                onAdd(e.target.elements.todo.value);
+            }}
+            className="dib pa1 flex justify-center">
+            <label
+                className="mr3" 
+            >
+                New todo : <input 
+                    className={join(["bn input-reset pa2 w-100", inputStyleFocus], " ")}
+                    placeholder="a todo"
+                    type="text"
+                    name="todo"
+                />
+            </label>
+            <input
+                className="input-reset button-reset ba b--black bg-white pa2 b hover-white hover-bg-black grow"
+                value="Add"
+                type="submit"
+            />
+        </form>
+    );
+
+}
