@@ -68,6 +68,7 @@
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.(ts|tsx)$": "<rootDir>/processFiles",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
       "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
@@ -83,6 +84,8 @@
       "json",
       "web.jsx",
       "jsx",
+      "ts",
+      "tsx",
       "node"
     ]
   },
