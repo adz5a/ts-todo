@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "noImplicitAny": true,
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "sourceMap": true
+    }
+}
