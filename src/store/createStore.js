@@ -1,8 +1,11 @@
-import { createStore, compose, applyMiddleware, combineReducers } from "redux";
-import { 
+import { createStore, compose, applyMiddleware, combineReducers } from "redux";
+import {
     reducer as todo,
     middleware
 } from "./todo";
+import {
+    middleware as firebaseMW
+} from "./firebase";
 
 
 export default function () {
@@ -20,7 +23,8 @@ export default function () {
 
     return  createStore(reducer, /* preloadedState, */ composeEnhancers(
         applyMiddleware(...[
-            middleware
+            middleware,
+            firebaseMW
         ])
     ));
 }

@@ -1,6 +1,7 @@
 import { createStreamMiddleware, RunFunction } from "./streamMiddleware";
 import xs, { Stream, Producer } from "xstream";
 import flattenConcurrently from "xstream/extra/flattenConcurrently";
+import dropRepeats from "xstream/extra/dropRepeats";
 import { Todo } from "./todo";
 import { Action } from "redux";
 import { initializeApp, User } from "firebase";
@@ -8,7 +9,9 @@ import { initializeApp, User } from "firebase";
 
 export namespace Firebase {
     export namespace actions {
-
+        export const logged = "Firebase/logged";
+        export const loginError = "Firebase/loginError";
+        export const saved = "Firebase/saved";
     }
 }
 
@@ -16,7 +19,7 @@ interface UserProducer extends Producer<User | null>{
     unsub: () => void;
 }
 
-export const middleware = createStreamMiddleware(action$ => {
+export const middleware = createStreamMiddleware(( action$, state$ ) => {
 
 
 
@@ -33,22 +36,20 @@ export const middleware = createStreamMiddleware(action$ => {
     const auth = app.auth();
 
     
-    const user$ = <Stream<User | null>>xs.create(<UserProducer>{
-        start ( listener ) {
-            this.unsub = auth.onAuthStateChanged(
-                user => listener.next(user),
-                error => listener.error(error)
-            );
-        },
-        stop() {
-            this.unsub();
-        },
-    });
-
-
-    const userLogged$ = user$
-        .take(1)
+    const user$ = <Stream<User>>xs
+        .create(<UserProducer>{
+            start ( listener ) {
+                this.unsub = auth.onAuthStateChanged(
+                    user => listener.next(user),
+                    error => listener.error(error)
+                );
+            },
+            stop() {
+                this.unsub();
+            },
+        })
         .map( user => {
+
             const deferredUser = user === null ?
                 auth.signInAnonymously():
                 Promise.resolve(user)
@@ -56,6 +57,53 @@ export const middleware = createStreamMiddleware(action$ => {
             return xs.fromPromise(deferredUser);
         } )
         .compose(flattenConcurrently)
+        .take(1);
 
-    return action$;
+
+    // will emit at most once,
+    // no retry mechanism
+    const userLogged$ = user$
+        .take(1)
+        .map( user => {
+            return {
+                type: Firebase.actions.logged,
+                data: user
+            };
+        } )
+        .replaceError( error => {
+            return xs.of({
+                type: Firebase.actions.loginError,
+                data: error
+            });
+        } );
+;
+
+    const todoSelector = (state: any) => state.todo;
+
+    const save$: Stream<Action> = xs.combine(
+        user$,
+        <Stream<any>>state$.compose(dropRepeats()),
+        action$
+        .filter( action => action.type === Todo.added )
+    )
+        .map(([ user, state, action ]) => {
+
+            return database.ref("todos/" + user.uid)
+                .set(todoSelector(state).toJS());
+
+        })
+        .map(xs.fromPromise)
+        .map(() => {
+
+            return {
+                type: Firebase.actions.saved
+            };
+
+        });
+
+
+    return xs.merge(
+        userLogged$,
+        save$
+    );
 });

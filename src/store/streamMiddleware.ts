@@ -5,7 +5,7 @@ import { Action, Middleware } from "redux";
 
 
 export interface RunFunction {
-    <S> ( action$: Stream<Action>, state$?: Stream<S> ): Stream<Action>
+    <S> ( action$: Stream<Action>, state$: Stream<S> ): Stream<Action>
 }
 
 
@@ -23,6 +23,10 @@ const noop = () => {};
  *
  */
 export function createStreamMiddleware  ( run: RunFunction, name: null | string = null ): Middleware {
+
+
+    // TODO : add multiple signature interface for RunFunction
+
 
     return function middleware ( api ) {
 
@@ -46,7 +50,7 @@ export function createStreamMiddleware  ( run: RunFunction, name: null | string
 
         } else {
 
-            action$ = run(rawActions$);
+            action$ = run(rawActions$, xs.never());
 
         }
 
