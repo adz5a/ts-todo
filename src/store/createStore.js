@@ -24,3 +24,9 @@ export default function () {
         ])
     ));
 }
+
+
+export const todoSelector = state => state.todo;
+export const selector = {
+    todo: todoSelector
+};

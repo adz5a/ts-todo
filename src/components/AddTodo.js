@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { css } from "glamor";
+import { Todo } from "../store/todo.ts";
+import { connect } from "react-redux";
 import join from 'lodash/join';
 import noop from 'lodash/noop';
 
@@ -10,7 +12,7 @@ const inputStyleFocus = css({
     }
 });
 
-export function AddTodo ({ onAdd = noop }) {
+export function AddTodoView ({ onAdd = noop }) {
 
     return (
         <form 
@@ -38,3 +40,16 @@ export function AddTodo ({ onAdd = noop }) {
     );
 
 }
+
+
+export const AddTodo = connect(
+    null,
+    {
+        onAdd ( task ) {
+            return {
+                type: Todo.add,
+                data: Todo.of({ task })
+            };
+        }
+    }
+)(AddTodoView);

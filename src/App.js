@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { hello } from "./hello.ts";
-import { List, Record } from "immutable";
+// import { hello } from "./hello.ts";
+import { List, } from "immutable";
 import { AddTodo } from "./components/AddTodo";
-import { TodoList, Todo } from "./components/TodoList";
-import { TodoRecord } from "./store/todo";
+import { TodoList } from "./components/TodoList";
+import { Todo } from "./store/todo";
 
 
 
@@ -20,8 +20,8 @@ function Main ({ children }) {
 
 
 const dummyData = List(["aller au travail", "faire des apps"])
-    .map(task => ({ task }))
-    .map(TodoRecord);
+    .map(task => ({ task, _id: Math.random() }))
+    .map(Todo.of);
 
 
 class App extends Component {
