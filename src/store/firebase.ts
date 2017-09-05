@@ -102,8 +102,36 @@ export const middleware = createStreamMiddleware(( action$, state$ ) => {
         });
 
 
+    const load$ = user$
+        .map( user => database.ref("todos/" + user.uid).once("value") )
+        .map( xs.fromPromise )
+        .flatten()
+        .map( snap => {
+            const data = snap.val();
+            if ( data ) {
+
+                const actions = Object.keys(data)
+                    .map( id => ({
+                        type: Todo.add,
+                        data: Todo.of(data[id])
+                    }) );
+
+                return xs.fromArray(actions);
+
+            } else {
+
+                return xs.empty();
+
+            }
+
+
+
+        } )
+        .flatten();
+
     return xs.merge(
         userLogged$,
-        save$
+        save$,
+        load$
     );
 });
