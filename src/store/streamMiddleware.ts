@@ -4,12 +4,12 @@ import { Action, Middleware } from "redux";
 
 
 
-interface RunFunction {
+export interface RunFunction {
     <S> ( action$: Stream<Action>, state$?: Stream<S> ): Stream<Action>
 }
 
 
-type middlewareName = null | string;
+export type middlewareName = null | string;
 
 
 const noop = () => {};
