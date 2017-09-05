@@ -1,14 +1,14 @@
 import React from 'react';
-import { Seq, } from "immutable";
-import { Todo as  TodoNS } from "../store/todo";
-import { selector } from "../store/createStore";
-import { connect } from "react-redux";
+import { Seq, } from "immutable";
+import { Todo as  TodoNS } from "../store/todo";
+import { selector } from "../store/createStore";
+import { connect } from "react-redux";
 import noop from "lodash/noop";
 import Check from "react-icons/lib/md/check";
 import Remove from "react-icons/lib/md/highlight-remove";
 
 
-export function Todo ({ 
+export function Todo ({
     todo = TodoNS.Null,
     onRemove = noop,
     onUpdateStatus = noop,
@@ -28,12 +28,11 @@ export function Todo ({
                 {todo.task}
             </span>
             <span>
-                <select 
+                <select
                     value={todo.status}
                     onChange={e => {
 
                         const newStatus = e.target.value;
-                        console.log("update", newStatus);
                         onUpdateStatus(todo, newStatus);
 
                     }}
@@ -56,23 +55,29 @@ export function TodoListView ({
     onUpdateStatus = noop
 }) {
     return (
-        <ul className="dib pa1 list">
-            {todos
-                    .map(( todo, index ) => <Todo 
-                        todo={todo} 
-                        key={todo.get("_id")}
-                        onRemove={() => onTodoRemove(todo)}
-                        onUpdateStatus={onUpdateStatus}
-                    />)
-                    .toArray()}
-        </ul>
+        <section>
+            <section>
+
+            </section>
+            <ul className="dib pa1 list">
+                {todos
+                        .map(( todo, index ) => <Todo
+                            todo={todo}
+                            key={todo.get("_id")}
+                            onRemove={() => onTodoRemove(todo)}
+                            onUpdateStatus={onUpdateStatus}
+                        />)
+                        .toArray()
+                }
+            </ul>
+        </section>
     );
 
 
 }
 
 export const TodoList = connect(
-    state => ({ todos: selector.todo(state).toSeq() }),
+    state => ({ todos: selector.todo(state).toSeq() }),
     {
         onTodoRemove ( todo ) {
             return {
