@@ -1,0 +1,21 @@
+{
+    "hosting": {
+
+
+        "public": "build",
+
+
+        "headers": [
+            {
+                "source": "**/*.js",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "max-age=300"
+                    }
+                ]
+            }
+        ]
+
+    }
+}
