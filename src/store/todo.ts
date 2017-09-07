@@ -1,5 +1,5 @@
 import { List, Record, Map } from "immutable";
-import { createStreamMiddleware } from "./streamMiddleware";
+import { createMiddleware, Action$ } from "xstream-redux-observable";
 import { Action } from "redux";
 
 
@@ -83,7 +83,7 @@ export function reducer ( state: Todo.State = Map(), action: Todo.Actions ) {
 }
 
 
-export const middleware = createStreamMiddleware(action$ => {
+export const middleware = createMiddleware(( action$: Action$ ) => {
 
     return action$
         .filter( action => action.type === Todo.add )

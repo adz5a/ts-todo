@@ -1,9 +1,9 @@
-import { createStreamMiddleware, RunFunction } from "./streamMiddleware";
+import { createMiddleware, Run, Action$ } from "xstream-redux-observable";
 import xs, { Stream, Producer } from "xstream";
 import flattenConcurrently from "xstream/extra/flattenConcurrently";
 import dropRepeats from "xstream/extra/dropRepeats";
 import { Todo } from "./todo";
-import { Action } from "redux";
+import { Action, MiddlewareAPI, Middleware } from "redux";
 import { initializeApp, User } from "firebase";
 
 
@@ -19,7 +19,7 @@ interface UserProducer extends Producer<User | null>{
     unsub: () => void;
 }
 
-export const middleware = createStreamMiddleware(( action$, state$ ) => {
+const run = <S>( action$: Action$, api: MiddlewareAPI<S> ) => {
 
 
 
@@ -76,30 +76,29 @@ export const middleware = createStreamMiddleware(( action$, state$ ) => {
                 data: error
             });
         } );
-;
 
     const todoSelector = (state: any) => state.todo;
 
-    const save$: Stream<Action> = xs.combine(
-        user$,
-        <Stream<any>>state$.compose(dropRepeats()),
-        action$
-        .filter( action => action.type === Todo.added )
-    )
-        .map(([ user, state, action ]) => {
+    const save$ = user$.take(1)
+        .map(user => action$
+            .filter( action => action.type === Todo.added )
+            .map(( action: Todo.Added ) => {
 
-            return database.ref("todos/" + user.uid)
-                .set(todoSelector(state).toJS());
+                const todo = action.data;
+                return database.ref("todos/" + user.uid + "/" + todo.get("_id") )
+                    .set(todo.toJS());
 
-        })
-        .map(xs.fromPromise)
-        .map(() => {
+            })
+            .map(xs.fromPromise)
+            .map(() => {
 
-            return {
-                type: Firebase.actions.saved
-            };
+                return {
+                    type: Firebase.actions.saved
+                };
 
-        });
+            }))
+        .flatten();
+
 
 
     const load$ = user$
@@ -133,5 +132,6 @@ export const middleware = createStreamMiddleware(( action$, state$ ) => {
         userLogged$,
         save$,
         load$
-    );
-});
+    ) as Action$;
+}
+export const middleware = createMiddleware(run as Run);

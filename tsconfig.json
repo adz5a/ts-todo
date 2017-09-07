@@ -7,7 +7,6 @@
         "module": "es6",
         "moduleResolution": "node",
         "target": "es6",
-        "declaration": true,
         "noEmitHelpers": true,
 
 
